@@ -50,4 +50,19 @@ export default [
       typescript({ useTsconfigDeclarationDir: true }),
     ],
   },
+  {
+    input: "src/index.ts",
+    output: {
+      dir: "dist",
+      format: "cjs",
+    },
+    external: makeExternalPredicate([
+      ...Object.keys(pkg.dependencies || {}),
+      ...Object.keys(pkg.peerDependencies || {}),
+    ]),
+    plugins: [
+      eslint({ throwOnError: true }),
+      typescript({ useTsconfigDeclarationDir: true }),
+    ],
+  },
 ];
