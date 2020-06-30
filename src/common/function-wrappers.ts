@@ -46,9 +46,9 @@ export function createMarker({ uuid, sink }: MarkerOptions): MarkFn {
     setTimeout(() => {
       try {
         /* eslint:disable-next-line no-unused-expression */
-        sink?.next({ type, channel, time, correlationId });
+        sink.next({ type, channel, time, correlationId });
       } catch (e) {
-        sink?.error(e);
+        sink.error(e);
       }
     }, 0);
     return correlationId;
@@ -75,6 +75,7 @@ export function createWrappers({
       const correlationId = mark("outgoing", channel);
       // add the correlation id as the last argument
       // (to hide it from the original handler on the other end)
+      /* eslint-disable-next-line consistent-return */
       return originalSend(
         channel,
         ...args,

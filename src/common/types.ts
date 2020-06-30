@@ -25,9 +25,6 @@ export type IpcMainListener = Parameters<IpcMain["on"]>;
 
 export type Cleanup = () => void;
 export type ObservableConstructor<T> = (observer: Observer<T>) => Cleanup;
-export type FunctionMapper<T extends () => unknown> = (
-  fn: T,
-  predicate?: () => boolean
-) => T;
+export type FunctionMapper<T> = (fn: T, predicate?: () => boolean) => T;
 
 export type UuidGenerator = () => string;

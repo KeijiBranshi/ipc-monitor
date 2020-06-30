@@ -2,7 +2,7 @@
   "name": "ipc-monitor",
   "version": "0.0.1",
   "description": "Observable-based IPC Monitoring Tool",
-  "main": "dist/index.js",
+  "main": "dist/main/index.js",
   "scripts": {
     "clean": "rimraf dist types",
     "type-check": "tsc --noEmit --skipLibCheck",
@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/KeijiBranshi/rx-ipc.git"
+    "url": "git+https://github.com/KeijiBranshi/ipc-monitor.git"
   },
   "keywords": [
     "rxjs",
