@@ -21,9 +21,24 @@ const commonConfig = {
 
 export default [
   {
-    input: "src/index.ts",
+    input: "src/main/index.ts",
     output: {
-      dir: "dist",
+      dir: "dist/main",
+      format: "cjs",
+    },
+    external: makeExternalPredicate([
+      ...Object.keys(pkg.dependencies || {}),
+      ...Object.keys(pkg.peerDependencies || {}),
+    ]),
+    plugins: [
+      eslint({ throwOnError: true }),
+      typescript({ useTsconfigDeclarationDir: true }),
+    ],
+  },
+  {
+    input: "src/renderer/index.ts",
+    output: {
+      dir: "dist/renderer",
       format: "cjs",
     },
     external: makeExternalPredicate([
