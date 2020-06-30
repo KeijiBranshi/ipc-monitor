@@ -6,7 +6,13 @@
     "strictNullChecks": true,
     "removeComments": true,
     "sourceMap": true,
-    "allowJs": false
+    "allowJs": false,
+    "baseUrl": ".",
+    "paths": {
+      "main/*": ["./src/main/*"],
+      "renderer/*": ["./src/renderer/*"],
+      "common/*": ["./src/common/*"]
+    }
   },
   "include": ["./**/*.ts"],
   "exclude": ["./node_modules/*", "./dist/*", "./types/*"]

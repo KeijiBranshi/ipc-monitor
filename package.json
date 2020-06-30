@@ -31,7 +31,8 @@
   "types": "./types/index.d.ts",
   "dependencies": {
     "rxjs": "^5.5.12",
-    "rx-ipc-beta": "^1.0.0-beta.0"
+    "rx-ipc-beta": "^1.0.0-beta.0",
+    "uuid": "^8.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.10.3",
@@ -58,8 +59,5 @@
     "rxjs-marbles": "^2.4.1",
     "tslib": "^2.0.0",
     "typescript": "^3.9.5"
-  },
-  "peerDependencies": {
-    "electron": "^4.2.12"
   }
 }
