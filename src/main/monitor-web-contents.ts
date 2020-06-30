@@ -5,7 +5,6 @@ import { v4 as uuid } from "uuid";
 import createMonitor from "common/create-monitor";
 import { createWrappers, createMarker } from "common/function-wrappers";
 import { IpcMark, ObservableConstructor } from "common/types";
-import mergeAllWebContents from "main/on-all-webcontents";
 
 function createWebContentsWrapper(
   contents: WebContents
@@ -32,10 +31,10 @@ function createWebContentsWrapper(
   };
 }
 
-export default function createWebContentsMonitor(): Observable<IpcMark> {
-  return mergeAllWebContents((contents) => {
-    // monitor the WebContents object (for outgoing messages)
-    const wrap = createWebContentsWrapper(contents);
-    return createMonitor({ wrap });
-  });
+export default function createWebContentsMonitor(
+  contents: WebContents
+): Observable<IpcMark> {
+  // monitor the WebContents object (for outgoing messages)
+  const wrap = createWebContentsWrapper(contents);
+  return createMonitor({ wrap });
 }

@@ -4,17 +4,14 @@ import { Observable } from "rxjs/Observable";
 import { Observer } from "rxjs/Observer";
 import { v4 as uuid } from "uuid";
 import createMonitor from "common/create-monitor";
-import { createWrappers } from "common/function-wrappers";
+import { createWrappers, createMarker } from "common/function-wrappers";
 import { IpcMark, ObservableConstructor } from "common/types";
 
 function createIpcWrapper(ipc: IpcRenderer): ObservableConstructor<IpcMark> {
   return (observer: Observer<IpcMark>) => {
     /** Helper Functions */
-    const [wrapEventSender, wrapEventReceiver] = createWrappers({
-      uuid,
-      performance,
-      sink: observer,
-    });
+    const mark = createMarker({ uuid, sink: observer });
+    const [wrapEventSender, wrapEventReceiver] = createWrappers({ mark });
 
     /** Track the original function implementations */
     const originalEmit = ipc.emit.bind(ipc);
@@ -47,21 +44,22 @@ function createIpcWrapper(ipc: IpcRenderer): ObservableConstructor<IpcMark> {
   };
 }
 
+export function createIpcRendererMonitor(): Observable<IpcMark> {
+  const wrap = createIpcWrapper(ipcRenderer);
+  const monitor = createMonitor({ wrap });
+
+  // setupProxyMonitoringFromMain(monitor, context);
+
+  return monitor;
+}
+
 /**
  * Create a monitor on the provided ipc.
  */
 let singleton: Observable<IpcMark>;
-
-export default function createIpcMonitor(): Observable<IpcMark> {
+export default function getIpcRendererMonitor(): Observable<IpcMark> {
   if (singleton) {
-    singleton = (function createSingleton() {
-      const wrap = createIpcWrapper(ipcRenderer);
-      const monitor = createMonitor({ wrap });
-
-      // setupProxyMonitoringFromMain(monitor, context);
-
-      return monitor;
-    })();
+    singleton = createIpcRendererMonitor();
   }
   return singleton;
 }
