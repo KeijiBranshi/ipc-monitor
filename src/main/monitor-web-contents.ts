@@ -3,7 +3,7 @@ import { Observable } from "rxjs/Observable";
 import { Observer } from "rxjs/Observer";
 import { v4 as uuid } from "uuid";
 import createMonitor from "common/create-monitor";
-import { createWrappers, createMarker } from "common/function-wrappers";
+import { createFunctionWrappers, createMarker } from "common/function-wrappers";
 import { IpcMark, ObservableConstructor } from "common/types";
 
 function createWebContentsWrapper(
@@ -15,13 +15,16 @@ function createWebContentsWrapper(
       uuid,
       sink: observer,
     });
-    const [wrapEventSender] = createWrappers({ mark });
+    const [wrapEventSender] = createFunctionWrappers({ mark });
 
     /** Track the original function implementations */
     const originalSend = contents.send;
 
     /* eslint-disable no-param-reassign */
-    contents.send = wrapEventSender(originalSend.bind(contents));
+    contents.send = wrapEventSender(
+      originalSend.bind(contents),
+      () => !contents.isDestroyed()
+    );
 
     /** Return callback to unwrap/cleanup */
     return () => {

@@ -58,7 +58,7 @@ export function createMarker({ uuid, sink }: MarkerOptions): MarkFn {
 type WrapperOptions = {
   mark: ReturnType<typeof createMarker>;
 };
-export function createWrappers({
+export function createFunctionWrappers({
   mark,
 }: WrapperOptions): [FunctionMapper<SendFn>, FunctionMapper<EmitFn>] {
   const wrapOutgoingMessages = (

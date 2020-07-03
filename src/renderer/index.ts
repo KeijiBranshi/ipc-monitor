@@ -1,6 +1,8 @@
-import getIpcRendererMonitor, {
-  createIpcRendererMonitor,
-} from "renderer/ipc-renderer-monitor";
+import { proxify } from "rx-ipc";
+import createIpcRendererMonitor from "renderer/ipc-renderer-monitor";
 
 export { createIpcRendererMonitor };
-export default getIpcRendererMonitor;
+
+const ipcRendererMonitor = createIpcRendererMonitor();
+const proxifiedIpcRendererMonitor = proxify();
+export default ipcRendererMonitor;

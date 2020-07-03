@@ -1,5 +1,7 @@
 # RxJS Based Monitor for IPC Traffic
 
+In some ways, this is just a glorified wrapper around `Observable.create()` for IPC.
+
 ## Modules
 
 ## TODO

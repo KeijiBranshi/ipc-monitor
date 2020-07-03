@@ -69,32 +69,47 @@ export function arrivalCount(): IpcMetric<{ arrivals: number }> {
 }
 
 type Time = number;
-export function latencies(): IpcMetric<{ latency: number }> {
+type LatencyInfo = {
+  latency: number;
+  method: string;
+  channel: string;
+};
+export function latencies(): IpcMetric<LatencyInfo> {
   return (monitor: Observable<IpcMark>) => {
     return monitor
       .groupBy((mark) => mark.correlationId)
       .mergeMap(
-        (correlatedMarks: GroupedObservable<string | "unknown", IpcMark>) => {
+        (
+          correlatedMarks: GroupedObservable<string | "unknown", IpcMark>
+        ): Observable<LatencyInfo> => {
           const correlationId = correlatedMarks.key;
           if (correlationId === "unknown") {
-            return empty<Time>();
+            return empty<LatencyInfo>();
           }
+          const sendInfo = correlatedMarks.filter(
+            ({ type }) => type === "outgoing"
+          );
 
-          const sendTime: Observable<Time> = correlatedMarks
-            .filter(({ type }) => type === "outgoing")
-            .pluck("time");
+          const sendTime: Observable<Time> = sendInfo.pluck("time");
           const receiveTime: Observable<Time> = correlatedMarks
             .filter(({ type }) => type === "incoming")
             .pluck("time");
 
-          const latency: Observable<Time> = zip(sendTime, receiveTime)
+          const messageLatency: Observable<Time> = zip(sendTime, receiveTime)
             .map(([sent, received]) => received - sent)
             .take(1);
 
-          return latency;
+          return zip(
+            messageLatency,
+            sendInfo.pluck<IpcMark, string>("channel"),
+            sendInfo.pluck<IpcMark, string>("method")
+          ).map(([latency, channel, method]) => ({
+            latency,
+            channel,
+            method,
+          }));
         }
-      )
-      .map((latency) => ({ latency }));
+      );
   };
 }
 
