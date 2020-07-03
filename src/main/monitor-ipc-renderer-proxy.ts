@@ -1,7 +1,8 @@
 import { ipcMain, IpcMain, WebContents } from "electron";
-import { createProxy } from "rx-ipc-beta";
+import { createProxy } from "rx-ipc";
 import { Observable } from "rxjs";
 import { v4 as uuid } from "uuid";
+import { IPC_PROXY_CHANNEL } from "common/constants";
 import { IpcMark } from "common/types";
 
 export default function createProxyRendererMonitor(
@@ -23,7 +24,7 @@ export default function createProxyRendererMonitor(
 
   // monitor the WebContents object (for outgoing messages)
   return createProxy({
-    channel: "ipc-monitor",
+    channel: IPC_PROXY_CHANNEL,
     ipc,
     uuid,
   });

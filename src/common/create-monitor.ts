@@ -2,10 +2,12 @@ import { Observable, Observer, Subscription } from "rxjs";
 import { IpcMark } from "common/types";
 
 type TeardownLogic = (() => void) | (() => Subscription);
+type MonitorOptions = {
+  wrap: (monitorObserver: Observer<IpcMark>) => TeardownLogic;
+};
+
 export default function createMonitor({
   wrap,
-}: {
-  wrap: (monitorObserver: Observer<IpcMark>) => TeardownLogic;
-}): Observable<IpcMark> {
+}: MonitorOptions): Observable<IpcMark> {
   return Observable.create(wrap).share();
 }

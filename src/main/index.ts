@@ -1,10 +1,15 @@
+import { ipcMain as ipc } from "electron";
 import { merge } from "rxjs/observable/merge";
+import { _throw as throwError } from "rxjs/observable/throw";
 import onAllWebContents from "./on-all-webcontents";
 import createIpcMainMonitor from "main/monitor-ipc-main";
 import createProxyMonitor from "main/monitor-ipc-renderer-proxy";
 import createWebContentsMonitor from "main/monitor-web-contents";
 
-const ipcMainMonitor = createIpcMainMonitor().share();
+const ipcMainMonitor =
+  process && ipc
+    ? createIpcMainMonitor().share()
+    : throwError("IpcMain does not exist in this process");
 const webContentsMonitor = onAllWebContents(createWebContentsMonitor).share();
 const proxyMonitor = onAllWebContents(createProxyMonitor).share();
 
