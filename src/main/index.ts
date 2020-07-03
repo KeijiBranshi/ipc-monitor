@@ -1,20 +1,22 @@
 import { merge } from "rxjs/observable/merge";
 import onAllWebContents from "./on-all-webcontents";
-import createGlobalIpcMonitor from "main/monitor-global";
 import createIpcMainMonitor from "main/monitor-ipc-main";
 import createProxyMonitor from "main/monitor-ipc-renderer-proxy";
 import createWebContentsMonitor from "main/monitor-web-contents";
 
-export {
-  createIpcMainMonitor,
-  createProxyMonitor,
-  createWebContentsMonitor,
-  createGlobalIpcMonitor,
-};
+const ipcMainMonitor = createIpcMainMonitor().share();
+const webContentsMonitor = onAllWebContents(createWebContentsMonitor).share();
+const proxyMonitor = onAllWebContents(createProxyMonitor).share();
 
-const ipcMainMonitor = createIpcMainMonitor();
-const webContentsMonitor = onAllWebContents(createWebContentsMonitor);
-const proxyMonitor = onAllWebContents(createProxyMonitor);
+/** Aggregate Monitors */
+const mainProcessMonitor = merge(ipcMainMonitor, webContentsMonitor);
+const globalMonitor = merge(mainProcessMonitor, proxyMonitor);
 
-export { ipcMainMonitor, webContentsMonitor, proxyMonitor };
-export default merge(ipcMainMonitor, webContentsMonitor);
+/** Export Constructors */
+export { createIpcMainMonitor, createProxyMonitor, createWebContentsMonitor };
+
+/** Export singletons */
+export { ipcMainMonitor, webContentsMonitor, proxyMonitor, globalMonitor };
+
+/** Default to Main Process Monitor */
+export default mainProcessMonitor;
