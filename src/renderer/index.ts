@@ -1,6 +1,7 @@
+import { IpcMonitor } from "common/types";
 import createIpcRendererMonitor from "renderer/monitor-ipc-renderer";
 
-const ipcRendererMonitor = createIpcRendererMonitor().share();
+const ipcRendererMonitor: IpcMonitor = createIpcRendererMonitor().share();
 
 /** Export Constructors */
 export { createIpcRendererMonitor };

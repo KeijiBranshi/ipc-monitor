@@ -10,15 +10,6 @@ const makeExternalPredicate = (externalArr) => {
   return (id) => pattern.test(id);
 };
 
-const commonConfig = {
-  plugins: [
-    eslint({ throwOnError: true }),
-    typescript({
-      exclude: "*.test.ts",
-    }),
-  ],
-};
-
 export default [
   {
     input: "src/main/index.ts",
@@ -32,7 +23,9 @@ export default [
     ]),
     plugins: [
       eslint({ throwOnError: true }),
-      typescript({ useTsconfigDeclarationDir: true }),
+      typescript({
+        useTsconfigDeclarationDir: true,
+      }),
     ],
   },
   {
@@ -47,7 +40,9 @@ export default [
     ]),
     plugins: [
       eslint({ throwOnError: true }),
-      typescript({ useTsconfigDeclarationDir: true }),
+      typescript({
+        useTsconfigDeclarationDir: true,
+      }),
     ],
   },
   {
@@ -55,14 +50,20 @@ export default [
     output: {
       dir: "dist",
       format: "cjs",
+      preserveModules: true,
+      exports: "named",
     },
     external: makeExternalPredicate([
       ...Object.keys(pkg.dependencies || {}),
       ...Object.keys(pkg.peerDependencies || {}),
+      // "./main",
+      // "./renderer",
     ]),
     plugins: [
       eslint({ throwOnError: true }),
-      typescript({ useTsconfigDeclarationDir: true }),
+      typescript({
+        useTsconfigDeclarationDir: true,
+      }),
     ],
   },
 ];

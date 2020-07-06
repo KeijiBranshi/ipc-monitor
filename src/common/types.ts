@@ -1,9 +1,7 @@
 import { IpcRenderer, IpcMain, WebContents } from "electron";
+import { Observable } from "rxjs/Observable";
 import { Observer } from "rxjs/Observer";
 
-/**
- * Helper Types
- */
 export type IpcMark = {
   type: "outgoing" | "incoming";
   time: number;
@@ -12,7 +10,11 @@ export type IpcMark = {
   method?: keyof IpcRenderer | keyof IpcMain | keyof WebContents;
 };
 
-// TODO: abstract these to include IpcMain (since the function signatures are fairly similar)
+export type IpcMonitor = Observable<IpcMark>;
+
+/**
+ * Helper Types
+ */
 export type MarkFn = (
   type: "outgoing" | "incoming",
   channel: string,
