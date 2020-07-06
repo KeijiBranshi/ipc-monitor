@@ -1,5 +1,6 @@
-import { WebContents } from "electron";
+import { WebContents, ipcMain } from "electron";
 import { Observable } from "rxjs/Observable";
+import { _throw as throwError } from "rxjs/observable/throw";
 import { Observer } from "rxjs/Observer";
 import { v4 as uuid } from "uuid";
 import createMonitor from "common/create-monitor";
@@ -37,6 +38,11 @@ function createWebContentsWrapper(
 export default function createWebContentsMonitor(
   contents: WebContents
 ): Observable<IpcMark> {
+  const isMainProcess = process && ipcMain;
+  if (!isMainProcess) {
+    return throwError(new Error("Cannot access webContents from this process"));
+  }
+
   // monitor the WebContents object (for outgoing messages)
   const wrap = createWebContentsWrapper(contents);
   return createMonitor({ wrap });
