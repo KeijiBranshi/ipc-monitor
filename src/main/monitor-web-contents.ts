@@ -24,11 +24,12 @@ function createWebContentsWrapper(
     /* eslint-disable no-param-reassign */
     contents.send = wrapEventSender(
       originalSend.bind(contents),
+      "send",
       () => !contents.isDestroyed()
     );
 
     /** Return callback to unwrap/cleanup */
-    return () => {
+    return function restore() {
       contents.send = originalSend;
     };
     /* eslint-enable no-param-reassign */

@@ -2,12 +2,13 @@ import { IpcRenderer, IpcMain, WebContents } from "electron";
 import { Observable } from "rxjs/Observable";
 import { Observer } from "rxjs/Observer";
 
+export type IpcMethod = keyof IpcRenderer | keyof IpcMain | keyof WebContents;
 export type IpcMark = {
   type: "outgoing" | "incoming";
   time: number;
   correlationId: string;
   channel?: string;
-  method?: keyof IpcRenderer | keyof IpcMain | keyof WebContents;
+  method?: IpcMethod;
 };
 
 export type IpcMonitor = Observable<IpcMark>;
@@ -18,6 +19,7 @@ export type IpcMonitor = Observable<IpcMark>;
 export type MarkFn = (
   type: "outgoing" | "incoming",
   channel: string,
+  method?: IpcMethod,
   correlationId?: string,
   time?: number
 ) => string;
@@ -27,6 +29,10 @@ export type IpcMainListener = Parameters<IpcMain["on"]>;
 
 export type Cleanup = () => void;
 export type ObservableConstructor<T> = (observer: Observer<T>) => Cleanup;
-export type FunctionMapper<T> = (fn: T, predicate?: () => boolean) => T;
+export type FunctionMapper<T> = (
+  fn: T,
+  method?: IpcMethod,
+  predicate?: () => boolean
+) => T;
 
 export type UuidGenerator = () => string;

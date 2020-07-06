@@ -12,7 +12,10 @@
       "main/*": ["./src/main/*"],
       "renderer/*": ["./src/renderer/*"],
       "common/*": ["./src/common/*"]
-    }
+    },
+    "plugins": [
+      { "transform": "typescript-transform-paths", "afterDeclarations": true }
+    ]
   },
   "include": ["./**/*.ts"],
   "exclude": ["./node_modules/*", "./dist/*"]

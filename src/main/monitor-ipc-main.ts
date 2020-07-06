@@ -16,10 +16,10 @@ function createIpcWrapper(ipc: IpcMain): ObservableConstructor<IpcMark> {
     /** Track the original function implementations */
     /* eslint-disable no-param-reassign  */
     const originalEmit = ipc.emit;
-    ipc.emit = wrapEventReceiver(originalEmit.bind(ipc));
+    ipc.emit = wrapEventReceiver(originalEmit.bind(ipc), "emit");
 
     /** Return callback to unwrap/cleanup */
-    return () => {
+    return function restore() {
       ipc.emit = originalEmit;
     };
     /* eslint-enable no-param-reassign  */

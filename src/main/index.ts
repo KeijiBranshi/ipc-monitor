@@ -1,4 +1,6 @@
 import { merge } from "rxjs/observable/merge";
+import "rxjs/add/operator/share";
+
 import onAllWebContents from "./on-all-webcontents";
 import { IpcMonitor } from "common/types";
 import createIpcMainMonitor from "main/monitor-ipc-main";

@@ -6,6 +6,7 @@ import {
   FunctionMapper,
   SendFn,
   EmitFn,
+  IpcMethod,
 } from "common/types";
 
 /** "Random" string to distinguish correlation ids included with incoming messages */
@@ -38,6 +39,7 @@ export function createMarker({ uuid, sink }: MarkerOptions): MarkFn {
   return function mark(
     type: "outgoing" | "incoming",
     channel: string,
+    method?: IpcMethod,
     correlationId: string = uuid(),
     time: number = Date.now()
   ): string {
@@ -46,7 +48,7 @@ export function createMarker({ uuid, sink }: MarkerOptions): MarkFn {
     setTimeout(() => {
       try {
         /* eslint:disable-next-line no-unused-expression */
-        sink.next({ type, channel, time, correlationId });
+        sink.next({ type, channel, time, correlationId, method });
       } catch (e) {
         sink.error(e);
       }
@@ -63,6 +65,7 @@ export function createFunctionWrappers({
 }: WrapperOptions): [FunctionMapper<SendFn>, FunctionMapper<EmitFn>] {
   const wrapOutgoingMessages = (
     originalSend: SendFn,
+    method?: IpcMethod,
     safeToSend: () => boolean = () => true
   ): SendFn => {
     // return a new version of the ipc.send method
@@ -72,7 +75,7 @@ export function createFunctionWrappers({
       }
 
       const [channel, ...args] = originalArgs;
-      const correlationId = mark("outgoing", channel);
+      const correlationId = mark("outgoing", channel, method);
       // add the correlation id as the last argument
       // (to hide it from the original handler on the other end)
       /* eslint-disable-next-line consistent-return */
@@ -86,6 +89,7 @@ export function createFunctionWrappers({
   };
   const wrapIncomingMessages = (
     originalEmit: EmitFn,
+    method?: IpcMethod,
     safeToEmit: () => boolean = () => true
   ): EmitFn => {
     return (...originalArgs: Parameters<EmitFn>) => {
@@ -95,7 +99,7 @@ export function createFunctionWrappers({
 
       const [channel, ...args] = originalArgs as [string, ...any[]];
       const correlationId = extractCorrelationId(...args);
-      mark("incoming", channel.toString(), correlationId);
+      mark("incoming", channel.toString(), method, correlationId);
 
       return originalEmit(...originalArgs);
     };
