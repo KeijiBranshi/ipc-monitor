@@ -1,6 +1,6 @@
 import { IpcRenderer, ipcRenderer } from "electron";
 import { Observable } from "rxjs/Observable";
-// tslint:disable-next-line:no-ipc-renderer-import
+import { _throw as throwError } from "rxjs/observable/throw";
 import { Observer } from "rxjs/Observer";
 import { v4 as uuid } from "uuid";
 import createMonitor from "common/create-monitor";
@@ -47,6 +47,11 @@ function createIpcWrapper(ipc: IpcRenderer): ObservableConstructor<IpcMark> {
 }
 
 export default function createIpcRendererMonitor(): Observable<IpcMark> {
+  const isRendererProcess = process.type === "renderer" && ipcRenderer;
+  if (!isRendererProcess) {
+    return throwError(new Error("No ipcRenderer exists in this process"));
+  }
+
   const wrap = createIpcWrapper(ipcRenderer);
   const monitor = createMonitor({ wrap });
 
