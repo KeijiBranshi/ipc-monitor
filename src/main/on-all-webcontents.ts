@@ -2,7 +2,7 @@ import { app, webContents, WebContents } from "electron";
 import { Observable } from "rxjs/Observable";
 import { defer } from "rxjs/observable/defer";
 import { fromEvent } from "rxjs/observable/fromEvent";
-import { IpcMark } from "common/types";
+import { IpcMark } from "../common/types";
 
 function onAllWebContents(
   observableFactory: (contents: WebContents) => Observable<IpcMark>

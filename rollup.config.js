@@ -24,7 +24,11 @@ export default [
     plugins: [
       eslint({ throwOnError: true }),
       typescript({
-        useTsconfigDeclarationDir: true,
+        tsconfigOverride: {
+          compilerOptions: {
+            declaration: false,
+          },
+        },
       }),
     ],
   },
@@ -41,7 +45,11 @@ export default [
     plugins: [
       eslint({ throwOnError: true }),
       typescript({
-        useTsconfigDeclarationDir: true,
+        tsconfigOverride: {
+          compilerOptions: {
+            declaration: false,
+          },
+        },
       }),
     ],
   },

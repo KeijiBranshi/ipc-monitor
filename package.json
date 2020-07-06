@@ -6,7 +6,7 @@
   "scripts": {
     "clean": "rimraf dist types package",
     "type-check": "tsc --noEmit --skipLibCheck",
-    "compile": "tsc --outDir ./dist",
+    "compile": "tsc --outDir ./dist --skipLibCheck --declaration",
     "build": "rollup -c",
     "make-package": "node ./.make-package.js",
     "prepublishOnly": "npm run clean && npm run build && npm run make-package",
@@ -59,7 +59,7 @@
     "rxjs-marbles": "^2.4.1",
     "tslib": "^2.0.0",
     "typescript": "^3.9.5",
-    "typescript-transform-paths": "^1.1.14"
+    "typescript-transform-paths": "1.1.13"
   },
   "peerDependencies": {
     "electron": "^4.12.1"

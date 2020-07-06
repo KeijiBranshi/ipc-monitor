@@ -7,7 +7,7 @@ import {
   SendFn,
   EmitFn,
   IpcMethod,
-} from "common/types";
+} from "./types";
 
 /** "Random" string to distinguish correlation ids included with incoming messages */
 const CorrelationIdSeparator = "4fabcc09-0ddf-495a-9d0f-c17d4290e42a";

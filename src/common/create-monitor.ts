@@ -1,5 +1,5 @@
 import { Observable, Observer, Subscription } from "rxjs";
-import { IpcMark } from "common/types";
+import { IpcMark } from "./types";
 
 type TeardownLogic = (() => void) | (() => Subscription);
 type MonitorOptions = {

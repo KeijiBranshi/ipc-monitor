@@ -12,6 +12,7 @@ export type IpcMark = {
 };
 
 export type IpcMonitor = Observable<IpcMark>;
+export type IpcMetric<T> = (source: IpcMonitor) => Observable<T>;
 
 /**
  * Helper Types

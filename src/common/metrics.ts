@@ -2,7 +2,7 @@ import { Observable } from "rxjs/Observable";
 import { empty } from "rxjs/observable/empty";
 import { zip } from "rxjs/observable/zip";
 import { GroupedObservable } from "rxjs/operator/groupBy";
-import { IpcMark } from "common/types";
+import { IpcMark } from "./types";
 
 import "rxjs/add/operator/groupBy";
 import "rxjs/add/operator/filter";

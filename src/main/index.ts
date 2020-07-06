@@ -1,10 +1,10 @@
 import { merge } from "rxjs/observable/merge";
 import "rxjs/add/operator/share";
 
+import { IpcMonitor } from "../common/types";
+import createIpcMainMonitor from "./monitor-ipc-main";
+import createWebContentsMonitor from "./monitor-web-contents";
 import onAllWebContents from "./on-all-webcontents";
-import { IpcMonitor } from "common/types";
-import createIpcMainMonitor from "main/monitor-ipc-main";
-import createWebContentsMonitor from "main/monitor-web-contents";
 
 const ipcMainMonitor: IpcMonitor = createIpcMainMonitor().share();
 const webContentsMonitor: IpcMonitor = onAllWebContents(

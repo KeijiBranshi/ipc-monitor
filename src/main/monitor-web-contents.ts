@@ -3,9 +3,12 @@ import { Observable } from "rxjs/Observable";
 import { _throw as throwError } from "rxjs/observable/throw";
 import { Observer } from "rxjs/Observer";
 import { v4 as uuid } from "uuid";
-import createMonitor from "common/create-monitor";
-import { createFunctionWrappers, createMarker } from "common/function-wrappers";
-import { IpcMark, ObservableConstructor } from "common/types";
+import createMonitor from "../common/create-monitor";
+import {
+  createFunctionWrappers,
+  createMarker,
+} from "../common/function-wrappers";
+import { IpcMark, ObservableConstructor } from "../common/types";
 
 function createWebContentsWrapper(
   contents: WebContents
