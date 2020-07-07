@@ -59,13 +59,10 @@ export default [
       dir: "dist",
       format: "cjs",
       preserveModules: true,
-      exports: "named",
     },
     external: makeExternalPredicate([
       ...Object.keys(pkg.dependencies || {}),
       ...Object.keys(pkg.peerDependencies || {}),
-      // "./main",
-      // "./renderer",
     ]),
     plugins: [
       eslint({ throwOnError: true }),

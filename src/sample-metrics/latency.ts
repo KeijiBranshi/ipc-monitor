@@ -2,89 +2,36 @@ import { Observable } from "rxjs/Observable";
 import { empty } from "rxjs/observable/empty";
 import { zip } from "rxjs/observable/zip";
 import { GroupedObservable } from "rxjs/operator/groupBy";
-import { IpcMark } from "./types";
-
 import "rxjs/add/operator/groupBy";
 import "rxjs/add/operator/filter";
+import "rxjs/add/operator/map";
+import "rxjs/add/operator/startWith";
 import "rxjs/add/operator/take";
 import "rxjs/add/operator/count";
-import "rxjs/add/operator/map";
 import "rxjs/add/operator/mergeMap";
 import "rxjs/add/operator/pluck";
 import "rxjs/add/operator/scan";
 
-export type IpcMetric<T> = (source: Observable<IpcMark>) => Observable<T>;
-
-export function combineMetrics<A>(m0: IpcMetric<A>): [IpcMetric<A>];
-export function combineMetrics<A, B>(
-  m0: IpcMetric<A>,
-  m1: IpcMetric<B>
-): [IpcMetric<A>, IpcMetric<B>];
-export function combineMetrics<A, B, C>(
-  m0: IpcMetric<A>,
-  m1: IpcMetric<B>,
-  m2: IpcMetric<C>
-): [IpcMetric<A>, IpcMetric<B>, IpcMetric<C>];
-export function combineMetrics<A, B, C, D>(
-  m0: IpcMetric<A>,
-  m1: IpcMetric<B>,
-  m2: IpcMetric<C>,
-  m3: IpcMetric<D>
-): [IpcMetric<A>, IpcMetric<B>, IpcMetric<C>, IpcMetric<D>];
-export function combineMetrics<A, B, C, D, E>(
-  m0: IpcMetric<A>,
-  m1: IpcMetric<B>,
-  m2: IpcMetric<C>,
-  m3: IpcMetric<D>,
-  m4: IpcMetric<E>
-): [IpcMetric<A>, IpcMetric<B>, IpcMetric<C>, IpcMetric<D>, IpcMetric<E>];
-
-/**
- * Helper function to help map to concrete Tuple types
- */
-export function combineMetrics(
-  ...metrics: IpcMetric<unknown>[]
-): IpcMetric<unknown>[] {
-  return [...metrics];
-}
-
-export function departureCount(): IpcMetric<{ departures: number }> {
-  return (monitor: Observable<IpcMark>) => {
-    return monitor
-      .filter(({ type }) => type === "outgoing")
-      .map((_, index) => ({
-        departures: index + 1,
-      }));
-  };
-}
-
-export function arrivalCount(): IpcMetric<{ arrivals: number }> {
-  return (monitor: Observable<IpcMark>) => {
-    return monitor
-      .filter(({ type }) => type === "incoming")
-      .map((_, index) => ({
-        arrivals: index + 1,
-      }));
-  };
-}
+import { IpcMark, IpcMetric } from "../common/types";
 
 type Time = number;
-type LatencyInfo = {
+type LatencyData = {
   latency: number;
   method: string;
   channel: string;
+  // TODO: add payload size
 };
-export function latencies(): IpcMetric<LatencyInfo> {
+export function latencies(): IpcMetric<LatencyData> {
   return (monitor: Observable<IpcMark>) => {
     return monitor
       .groupBy((mark) => mark.correlationId)
       .mergeMap(
         (
           correlatedMarks: GroupedObservable<string | "unknown", IpcMark>
-        ): Observable<LatencyInfo> => {
+        ): Observable<LatencyData> => {
           const correlationId = correlatedMarks.key;
           if (correlationId === "unknown") {
-            return empty<LatencyInfo>();
+            return empty<LatencyData>();
           }
           const sendInfo = correlatedMarks.filter(
             ({ type }) => type === "outgoing"

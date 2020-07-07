@@ -13,6 +13,8 @@ fs.writeJsonSync("./package/tsconfig.json", tsConfig, { spaces: 2, EOL: "\n" });
 // create modified package.json
 delete pkg.scripts;
 delete pkg.types;
+pkg.types = "index.d.ts";
+
 fs.writeJsonSync("./package/package.json", pkg, { spaces: 2, EOL: "\n" });
 
 // copy LICENSE
