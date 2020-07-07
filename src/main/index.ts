@@ -7,9 +7,9 @@ import createWebContentsMonitor from "./monitor-web-contents";
 import onAllWebContents from "./on-all-webcontents";
 
 const ipcMainMonitor: IpcMonitor = createIpcMainMonitor().share();
-const webContentsMonitor: IpcMonitor = onAllWebContents(
-  createWebContentsMonitor
-).share();
+const webContentsMonitor: IpcMonitor = onAllWebContents()
+  .mergeMap(createWebContentsMonitor)
+  .share();
 
 /** Aggregate Monitors */
 const mainProcessMonitor: IpcMonitor = merge(
