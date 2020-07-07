@@ -2,7 +2,6 @@ import { IpcRenderer, ipcRenderer } from "electron";
 import { Observable } from "rxjs/Observable";
 import { _throw as throwError } from "rxjs/observable/throw";
 import { Observer } from "rxjs/Observer";
-import { v4 as uuid } from "uuid";
 import createMonitor from "../common/create-monitor";
 import {
   createFunctionWrappers,
@@ -13,7 +12,7 @@ import { IpcMark, ObservableConstructor } from "../common/types";
 function createIpcWrapper(ipc: IpcRenderer): ObservableConstructor<IpcMark> {
   return (observer: Observer<IpcMark>) => {
     /** Helper Functions */
-    const mark = createMarker({ uuid, sink: observer });
+    const mark = createMarker({ sink: observer });
     const [wrapEventSender, wrapEventReceiver] = createFunctionWrappers({
       mark,
     });
@@ -53,7 +52,7 @@ function createIpcWrapper(ipc: IpcRenderer): ObservableConstructor<IpcMark> {
 }
 
 export default function createIpcRendererMonitor(): Observable<IpcMark> {
-  const isRendererProcess = process.type === "renderer" && ipcRenderer;
+  const isRendererProcess = process?.type === "renderer" && ipcRenderer;
   if (!isRendererProcess) {
     return throwError(new Error("No ipcRenderer exists in this process"));
   }

@@ -1,6 +1,6 @@
 {
   "name": "ipc-monitor",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Observable-based IPC Monitoring Tool",
   "main": "index.js",
   "scripts": {
@@ -29,8 +29,7 @@
   "license": "MIT",
   "types": "./types/index.d.ts",
   "dependencies": {
-    "rxjs": "^5.5.12",
-    "uuid": "^8.2.0"
+    "rxjs": "^5.5.12"
   },
   "devDependencies": {
     "@babel/core": "^7.10.3",
@@ -51,6 +50,7 @@
     "fs-extra": "^9.0.1",
     "jest": "^26.1.0",
     "lodash": "^4.17.15",
+    "node-uuid": "^1.4.7",
     "prettier": "^2.0.5",
     "rimraf": "^3.0.2",
     "rollup": "^2.18.1",
@@ -62,6 +62,8 @@
     "typescript-transform-paths": "1.1.13"
   },
   "peerDependencies": {
-    "electron": "^4.12.1"
-  }
+    "electron": "^4.12.1",
+    "node-uuid": "^1.4.7"
+  },
+  "sideEffects": true
 }

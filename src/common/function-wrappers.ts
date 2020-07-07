@@ -1,7 +1,7 @@
+import { v4 as uuid } from "node-uuid";
 import { Observer } from "rxjs/Observer";
 import {
   IpcMark,
-  UuidGenerator,
   MarkFn,
   FunctionMapper,
   SendFn,
@@ -25,7 +25,6 @@ function extractCorrelationId(...args: any[]): string | "unknown" {
 }
 
 export type MarkerOptions = {
-  uuid: UuidGenerator;
   sink: Observer<IpcMark>;
 };
 
@@ -35,7 +34,7 @@ export type MarkerOptions = {
  * the `performance` and `uuid` APIs. Additionally, it gives more flexibility
  * on the process to decide the Observer (ie sink) implementation for the marks
  */
-export function createMarker({ uuid, sink }: MarkerOptions): MarkFn {
+export function createMarker({ sink }: MarkerOptions): MarkFn {
   return function mark(
     type: "outgoing" | "incoming",
     channel: string,

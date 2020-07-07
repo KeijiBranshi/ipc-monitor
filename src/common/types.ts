@@ -35,5 +35,3 @@ export type FunctionMapper<T> = (
   method?: IpcMethod,
   predicate?: () => boolean
 ) => T;
-
-export type UuidGenerator = () => string;
