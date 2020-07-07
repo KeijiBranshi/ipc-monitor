@@ -53,7 +53,7 @@ function createIpcWrapper(ipc: IpcRenderer): ObservableConstructor<IpcMark> {
 }
 
 export default function createIpcRendererMonitor(): Observable<IpcMark> {
-  const isRendererProcess = process.type === "renderer" && ipcRenderer;
+  const isRendererProcess = process?.type === "renderer" && ipcRenderer;
   if (!isRendererProcess) {
     return throwError(new Error("No ipcRenderer exists in this process"));
   }
