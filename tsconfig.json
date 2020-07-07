@@ -1,8 +1,4 @@
 {
   "extends": "./tsconfig.base.json",
-  "compilerOptions": {
-    "declaration": true,
-    "declarationDir": "./types"
-  },
-  "exclude": ["./node_modules/*", "./dist/*", "./types/*", "./test/**/*.ts"]
+  "exclude": ["./tests/*"]
 }

@@ -6,7 +6,9 @@
     "strictNullChecks": true,
     "removeComments": true,
     "sourceMap": true,
-    "allowJs": false
+    "allowJs": false,
+    "declaration": true,
+    "declarationDir": "./types"
   },
   "include": ["./**/*.ts"],
   "exclude": ["./node_modules/*", "./dist/*", "./types/*"]

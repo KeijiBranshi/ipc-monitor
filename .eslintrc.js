@@ -39,6 +39,7 @@ module.exports = {
         ts: "never",
       },
     ],
+    "@typescript-eslint/no-explicit-any": 0,
   },
   settings: {
     "import/extensions": [".js", ".ts"],
