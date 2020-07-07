@@ -10,17 +10,20 @@ const makeExternalPredicate = (externalArr) => {
   return (id) => pattern.test(id);
 };
 
+const external = makeExternalPredicate([
+  ...Object.keys(pkg.dependencies || {}),
+  ...Object.keys(pkg.peerDependencies || {}),
+]);
+
 export default [
   {
     input: "src/main/index.ts",
     output: {
       dir: "dist/main",
       format: "cjs",
+      exports: "named",
     },
-    external: makeExternalPredicate([
-      ...Object.keys(pkg.dependencies || {}),
-      ...Object.keys(pkg.peerDependencies || {}),
-    ]),
+    external,
     plugins: [
       eslint({ throwOnError: true }),
       typescript({
@@ -37,11 +40,9 @@ export default [
     output: {
       dir: "dist/renderer",
       format: "cjs",
+      exports: "named",
     },
-    external: makeExternalPredicate([
-      ...Object.keys(pkg.dependencies || {}),
-      ...Object.keys(pkg.peerDependencies || {}),
-    ]),
+    external,
     plugins: [
       eslint({ throwOnError: true }),
       typescript({
@@ -59,11 +60,9 @@ export default [
       dir: "dist",
       format: "cjs",
       preserveModules: true,
+      exports: "named",
     },
-    external: makeExternalPredicate([
-      ...Object.keys(pkg.dependencies || {}),
-      ...Object.keys(pkg.peerDependencies || {}),
-    ]),
+    external,
     plugins: [
       eslint({ throwOnError: true }),
       typescript({

@@ -3,7 +3,6 @@ import { Observable } from "rxjs/Observable";
 import { fromEvent } from "rxjs/observable/fromEvent";
 import { _throw as throwError } from "rxjs/observable/throw";
 import { Observer } from "rxjs/Observer";
-import { v4 as uuid } from "uuid";
 import createMonitor from "../common/create-monitor";
 import {
   createFunctionWrappers,
@@ -19,7 +18,6 @@ function createWebContentsWrapper(
   return (observer: Observer<IpcMark>) => {
     /** Helper Functions */
     const mark = createMarker({
-      uuid,
       sink: observer,
     });
     const [wrapEventSender] = createFunctionWrappers({ mark });
