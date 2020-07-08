@@ -1,12 +1,13 @@
 import { WebviewTag } from "electron";
-import { Observable, Observer } from "rxjs";
-import { from } from "rxjs/observable/from";
+import { Observer } from "rxjs";
+import { fromEvent } from "rxjs/observable/fromEvent";
+import { _throw as throwError } from "rxjs/observable/throw";
+import createMonitor from "../common/create-monitor";
 import {
   createMarker,
   createFunctionWrappers,
 } from "../common/function-wrappers";
-import { ObservableConstructor, IpcMark } from "../common/types";
-import onMutations from "./rx-mutation-observer";
+import { ObservableConstructor, IpcMark, IpcMonitor } from "../common/types";
 
 function createWebviewWrapper(
   webview: WebviewTag
@@ -32,4 +33,14 @@ function createWebviewWrapper(
   };
 }
 
-function createWebviewMonitor(webview: WebviewTag) {}
+export default function createWebviewMonitor(webview: WebviewTag): IpcMonitor {
+  const isRendererProcess = process?.type === "renderer";
+  if (!isRendererProcess) {
+    return throwError(new Error("Cannot access webContents from this process"));
+  }
+
+  // monitor the WebContents object (for outgoing messages)
+  const contentsDestroyed = fromEvent<void>(webview, "destroyed");
+  const wrap = createWebviewWrapper(webview);
+  return createMonitor({ wrap }).takeUntil(contentsDestroyed);
+}
