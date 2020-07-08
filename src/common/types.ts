@@ -1,4 +1,4 @@
-import { IpcRenderer, IpcMain, WebContents } from "electron";
+import { IpcRenderer, IpcMain, WebContents, WebviewTag } from "electron";
 import { Observable } from "rxjs/Observable";
 import { Observer } from "rxjs/Observer";
 
@@ -24,7 +24,10 @@ export type MarkFn = (
   correlationId?: string,
   time?: number
 ) => string;
-export type SendFn = IpcRenderer["send"] | WebContents["send"];
+export type SendFn =
+  | IpcRenderer["send"]
+  | WebContents["send"]
+  | WebviewTag["send"];
 export type EmitFn = IpcRenderer["emit"] | IpcMain["emit"];
 export type IpcMainListener = Parameters<IpcMain["on"]>;
 

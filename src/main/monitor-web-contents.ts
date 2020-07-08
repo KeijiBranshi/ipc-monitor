@@ -23,7 +23,7 @@ function createWebContentsWrapper(
     const [wrapEventSender] = createFunctionWrappers({ mark });
 
     /** Track the original function implementations */
-    const originalSend = contents.send;
+    const originalSend: typeof contents.send = contents.send.bind(contents);
 
     /* eslint-disable no-param-reassign */
     contents.send = wrapEventSender(
