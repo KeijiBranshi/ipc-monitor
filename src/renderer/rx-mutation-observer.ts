@@ -15,7 +15,7 @@ const windowReady = new Promise((resolve) => {
   }
 });
 
-export default function onDomMutations(
+function onDomMutations(
   target: Node = document.documentElement,
   config: MutationObserverInit = { subtree: true, childList: true }
 ): Observable<MutationRecord> {
@@ -36,7 +36,7 @@ function extractWebviewElements(nodes: NodeList): WebviewTag[] {
     .map((node) => node as WebviewTag);
 }
 
-export function onWebviews(): Observable<WebviewTag> {
+export default function onWebviews(): Observable<WebviewTag> {
   const webviewsFromDom = () => {
     const preExistingWebviews = extractWebviewElements(
       document.querySelectorAll("webview")
