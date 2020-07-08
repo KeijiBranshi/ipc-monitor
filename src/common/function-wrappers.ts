@@ -12,7 +12,7 @@ import {
 /** "Random" string to distinguish correlation ids included with incoming messages */
 const CorrelationIdSeparator = "4fabcc09-0ddf-495a-9d0f-c17d4290e42a";
 
-function extractCorrelationId(...args: any[]): string | "unknown" {
+export function extractCorrelationId(...args: any[]): string | "unknown" {
   if (args.length < 2) {
     return "unknown";
   }

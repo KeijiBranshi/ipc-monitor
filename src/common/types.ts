@@ -2,7 +2,11 @@ import { IpcRenderer, IpcMain, WebContents, WebviewTag } from "electron";
 import { Observable } from "rxjs/Observable";
 import { Observer } from "rxjs/Observer";
 
-export type IpcMethod = keyof IpcRenderer | keyof IpcMain | keyof WebContents;
+export type IpcMethod =
+  | keyof IpcRenderer
+  | keyof IpcMain
+  | keyof WebContents
+  | keyof WebviewTag;
 export type IpcMark = {
   type: "outgoing" | "incoming";
   time: number;

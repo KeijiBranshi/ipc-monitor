@@ -1,4 +1,4 @@
-import { WebviewTag } from "electron";
+import { WebviewTag, IpcMessageEvent } from "electron";
 import { Observer } from "rxjs";
 import { fromEvent } from "rxjs/observable/fromEvent";
 import { _throw as throwError } from "rxjs/observable/throw";
@@ -6,6 +6,7 @@ import createMonitor from "../common/create-monitor";
 import {
   createMarker,
   createFunctionWrappers,
+  extractCorrelationId,
 } from "../common/function-wrappers";
 import { ObservableConstructor, IpcMark, IpcMonitor } from "../common/types";
 
@@ -23,11 +24,21 @@ function createWebviewWrapper(
     const originalSend: typeof webview.send = webview.send.bind(webview);
 
     /* eslint-disable no-param-reassign  */
-    webview.send = wrapEventSender(originalSend, "send");
+    (webview.send as any) = wrapEventSender(originalSend, "send");
+    const ipcSubscription = fromEvent<[IpcMessageEvent, ...any[]]>(
+      webview,
+      "ipc-message",
+      (event: IpcMessageEvent, ...args: any[]) => [event, ...args]
+    ).subscribe(([event, ...args]) => {
+      const { channel } = event;
+      const correlationId = extractCorrelationId(...args);
+      mark("incoming", channel, "addEventListener", correlationId);
+    });
 
     /** Return callback to unwrap/cleanup */
     return function restore() {
       webview.send = originalSend;
+      ipcSubscription.unsubscribe();
     };
     /* eslint-enable no-param-reassign  */
   };
