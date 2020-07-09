@@ -10,6 +10,8 @@ import {
 } from "../common/function-wrappers";
 import { ObservableConstructor, IpcMark, IpcMonitor } from "../common/types";
 
+import "rxjs/add/operator/takeUntil";
+
 function createWebviewWrapper(
   webview: WebviewTag
 ): ObservableConstructor<IpcMark> {

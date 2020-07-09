@@ -3,17 +3,8 @@ import { Observable } from "rxjs/Observable";
 import { from } from "rxjs/observable/from";
 import { Observer } from "rxjs/Observer";
 
-const windowReady = new Promise((resolve) => {
-  const loadedHandler = () => {
-    resolve();
-    window.removeEventListener("load", loadedHandler);
-  };
-  if (document.readyState === "complete") {
-    resolve();
-  } else {
-    window.addEventListener("load", loadedHandler);
-  }
-});
+import "rxjs/add/operator/startWith";
+import "rxjs/add/operator/mergeMap";
 
 export function onDomMutations(
   target: Node = document.documentElement,
@@ -30,6 +21,18 @@ export function onDomMutations(
   });
 }
 
+const windowReady = new Promise((resolve) => {
+  const loadedHandler = () => {
+    resolve();
+    window.removeEventListener("load", loadedHandler);
+  };
+  if (document.readyState === "complete") {
+    resolve();
+  } else {
+    window.addEventListener("load", loadedHandler);
+  }
+});
+
 function extractWebviewElements(nodes: NodeList): WebviewTag[] {
   return [...nodes.values()]
     .filter((node) => node instanceof HTMLElement && node.tagName === "WEBVIEW")
@@ -37,14 +40,12 @@ function extractWebviewElements(nodes: NodeList): WebviewTag[] {
 }
 
 export default function onWebviews(): Observable<WebviewTag> {
-  const webviewsFromDom = () => {
+  return from(windowReady).switchMap(() => {
     const preExistingWebviews = extractWebviewElements(
       document.querySelectorAll("webview")
     );
     return onDomMutations()
       .mergeMap((mutation) => extractWebviewElements(mutation.addedNodes))
       .startWith(...preExistingWebviews);
-  };
-
-  return from(windowReady).switchMap(() => webviewsFromDom());
+  });
 }
