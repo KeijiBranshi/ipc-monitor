@@ -6,11 +6,12 @@ In some ways, this is just a glorified wrapper around `Observable.create()` for 
 
 ## How To
 
-```
-// will wrap the ipc module for given process (main/renderer)
+```javascript
+// import will detect which process you're on and wrap the appropriate ipc module
 import ipcMonitor from "ipc-monitor";
 
-ipcMonitor.subscribe(mark => {
+// on subscribe, the ipc will get wrapped and this will emit meta data (this is a global side effect)
+const subscription = ipcMonitor.subscribe(mark => {
   if (mark.type === "outgoing") {
     console.log(`Message Sent @ ${mark.time}`);
   }
@@ -18,6 +19,9 @@ ipcMonitor.subscribe(mark => {
     console.log(`Message Received @ ${mark.time}`);
   }
 });
+
+// later on... unsubscribing from the monitor will restore the ipc module to its original form
+subscription.unsubscribe();
 ```
 
 > Note: this module performs a side-effect by decorating the `send` and `emit` methods on ipc. Original methods are restored on `unsubscribe()`.
