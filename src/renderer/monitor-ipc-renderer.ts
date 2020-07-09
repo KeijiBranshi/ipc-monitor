@@ -12,7 +12,7 @@ import { IpcMark, ObservableConstructor } from "../common/types";
 function createIpcWrapper(ipc: IpcRenderer): ObservableConstructor<IpcMark> {
   return (observer: Observer<IpcMark>) => {
     /** Helper Functions */
-    const mark = createMarker({ sink: observer });
+    const mark = createMarker({ sink: observer, module: "ipcRenderer" });
     const [wrapEventSender, wrapEventReceiver] = createFunctionWrappers({
       mark,
     });

@@ -1,14 +1,24 @@
-import { IpcRenderer, IpcMain, WebContents } from "electron";
+import { IpcRenderer, IpcMain, WebContents, WebviewTag } from "electron";
 import { Observable } from "rxjs/Observable";
 import { Observer } from "rxjs/Observer";
 
-export type IpcMethod = keyof IpcRenderer | keyof IpcMain | keyof WebContents;
+export type IpcMethod =
+  | keyof IpcRenderer
+  | keyof IpcMain
+  | keyof WebContents
+  | keyof WebviewTag;
+export type IpcModule =
+  | "ipcRenderer"
+  | "ipcMain"
+  | "webContents"
+  | "webviewTag";
 export type IpcMark = {
   type: "outgoing" | "incoming";
   time: number;
   correlationId: string;
   channel?: string;
   method?: IpcMethod;
+  module?: IpcModule;
 };
 
 export type IpcMonitor = Observable<IpcMark>;
@@ -24,7 +34,10 @@ export type MarkFn = (
   correlationId?: string,
   time?: number
 ) => string;
-export type SendFn = IpcRenderer["send"] | WebContents["send"];
+export type SendFn =
+  | IpcRenderer["send"]
+  | WebContents["send"]
+  | WebviewTag["send"];
 export type EmitFn = IpcRenderer["emit"] | IpcMain["emit"];
 export type IpcMainListener = Parameters<IpcMain["on"]>;
 

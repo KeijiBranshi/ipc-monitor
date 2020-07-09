@@ -1,6 +1,8 @@
 import { Observable, Observer, Subscription } from "rxjs";
 import { IpcMark } from "./types";
 
+import "rxjs/add/operator/share";
+
 type TeardownLogic = (() => void) | (() => Subscription);
 type MonitorOptions = {
   wrap: (monitorObserver: Observer<IpcMark>) => TeardownLogic;
