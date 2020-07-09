@@ -7,12 +7,18 @@ export type IpcMethod =
   | keyof IpcMain
   | keyof WebContents
   | keyof WebviewTag;
+export type IpcModule =
+  | "ipcRenderer"
+  | "ipcMain"
+  | "webContents"
+  | "webviewTag";
 export type IpcMark = {
   type: "outgoing" | "incoming";
   time: number;
   correlationId: string;
   channel?: string;
   method?: IpcMethod;
+  module?: IpcModule;
 };
 
 export type IpcMonitor = Observable<IpcMark>;

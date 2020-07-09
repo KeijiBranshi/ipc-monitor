@@ -2,10 +2,10 @@ import { Observable } from "rxjs/Observable";
 import { IpcMark } from "./common/types";
 
 import mainProcessMonitor from "./main";
-import ipcRendererMonitor from "./renderer";
+import rendererProcessMonitor from "./renderer";
 
 const ipcMonitor: Observable<IpcMark> =
-  process?.type === "renderer" ? ipcRendererMonitor : mainProcessMonitor;
+  process?.type === "renderer" ? rendererProcessMonitor : mainProcessMonitor;
 
 export { IpcMark, IpcMonitor, IpcMetric } from "./common/types";
 export default ipcMonitor;

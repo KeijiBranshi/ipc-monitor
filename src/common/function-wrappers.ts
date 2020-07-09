@@ -7,9 +7,10 @@ import {
   SendFn,
   EmitFn,
   IpcMethod,
+  IpcModule,
 } from "./types";
 
-/** "Random" string to distinguish correlation ids included with incoming messages */
+/** "Random" string to distinguish correlation ids included with incoming messages. Kind of a hack, but...eh */
 const CorrelationIdSeparator = "4fabcc09-0ddf-495a-9d0f-c17d4290e42a";
 
 export function extractCorrelationId(...args: any[]): string | "unknown" {
@@ -26,6 +27,7 @@ export function extractCorrelationId(...args: any[]): string | "unknown" {
 
 export type MarkerOptions = {
   sink: Observer<IpcMark>;
+  module: IpcModule;
 };
 
 /**
@@ -34,7 +36,7 @@ export type MarkerOptions = {
  * the `performance` and `uuid` APIs. Additionally, it gives more flexibility
  * on the process to decide the Observer (ie sink) implementation for the marks
  */
-export function createMarker({ sink }: MarkerOptions): MarkFn {
+export function createMarker({ sink, module }: MarkerOptions): MarkFn {
   return function mark(
     type: "outgoing" | "incoming",
     channel: string,
@@ -47,7 +49,7 @@ export function createMarker({ sink }: MarkerOptions): MarkFn {
     setTimeout(() => {
       try {
         /* eslint:disable-next-line no-unused-expression */
-        sink.next({ type, channel, time, correlationId, method });
+        sink.next({ type, channel, time, correlationId, method, module });
       } catch (e) {
         sink.error(e);
       }
