@@ -19,6 +19,7 @@ function createWebContentsWrapper(
     /** Helper Functions */
     const mark = createMarker({
       sink: observer,
+      module: "webContents",
     });
     const [wrapEventSender] = createFunctionWrappers({ mark });
 

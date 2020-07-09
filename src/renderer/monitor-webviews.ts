@@ -15,7 +15,7 @@ function createWebviewWrapper(
 ): ObservableConstructor<IpcMark> {
   return (observer: Observer<IpcMark>) => {
     /** Helper Functions */
-    const mark = createMarker({ sink: observer });
+    const mark = createMarker({ sink: observer, module: "webviewTag" });
     const [wrapEventSender] = createFunctionWrappers({
       mark,
     });
@@ -25,20 +25,17 @@ function createWebviewWrapper(
 
     /* eslint-disable no-param-reassign  */
     (webview.send as any) = wrapEventSender(originalSend, "send");
-    const ipcSubscription = fromEvent<[IpcMessageEvent, ...any[]]>(
-      webview,
-      "ipc-message",
-      (event: IpcMessageEvent, ...args: any[]) => [event, ...args]
-    ).subscribe(([event, ...args]) => {
-      const { channel } = event;
+    const incomingMessageObserver = (event: IpcMessageEvent) => {
+      const { channel, args } = event;
       const correlationId = extractCorrelationId(...args);
       mark("incoming", channel, "addEventListener", correlationId);
-    });
+    };
+    webview.addEventListener("ipc-message", incomingMessageObserver);
 
     /** Return callback to unwrap/cleanup */
     return function restore() {
       webview.send = originalSend;
-      ipcSubscription.unsubscribe();
+      webview.removeEventListener("ipc-message", incomingMessageObserver);
     };
     /* eslint-enable no-param-reassign  */
   };

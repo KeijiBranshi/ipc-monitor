@@ -15,7 +15,7 @@ const windowReady = new Promise((resolve) => {
   }
 });
 
-function onDomMutations(
+export function onDomMutations(
   target: Node = document.documentElement,
   config: MutationObserverInit = { subtree: true, childList: true }
 ): Observable<MutationRecord> {
