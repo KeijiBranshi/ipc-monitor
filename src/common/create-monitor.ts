@@ -1,4 +1,6 @@
-import { Observable, Observer, Subscription } from "rxjs";
+import { Observable } from "rxjs/Observable";
+import { Observer } from "rxjs/Observer";
+import { Subscription } from "rxjs/Subscription";
 import { IpcMark } from "./types";
 
 import "rxjs/add/operator/share";
