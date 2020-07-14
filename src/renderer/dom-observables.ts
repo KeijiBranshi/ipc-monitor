@@ -4,8 +4,10 @@ import { from } from "rxjs/observable/from";
 import { _throw as throwError } from "rxjs/observable/throw";
 import { Observer } from "rxjs/Observer";
 
+import "rxjs/add/operator/filter";
 import "rxjs/add/operator/startWith";
 import "rxjs/add/operator/mergeMap";
+import "rxjs/add/operator/switchMap";
 
 export function onDomMutations(
   target: Node = document?.documentElement,
@@ -28,17 +30,23 @@ export function onDomMutations(
   });
 }
 
-const windowReady = new Promise((resolve) => {
-  const loadedHandler = () => {
-    resolve();
-    window.removeEventListener("load", loadedHandler);
-  };
-  if (document.readyState === "complete") {
-    resolve();
-  } else {
-    window.addEventListener("load", loadedHandler);
-  }
-});
+const whenDomReady: Observable<unknown> = from(
+  new Promise((resolve, reject) => {
+    if (!(window || document)) {
+      reject(new Error("Global Window/DOM not present"));
+    }
+
+    if (document?.readyState === "complete") {
+      resolve();
+    } else {
+      const loadedHandler = () => {
+        resolve();
+        window.removeEventListener("load", loadedHandler);
+      };
+      window.addEventListener("load", loadedHandler);
+    }
+  })
+);
 
 function extractWebviewElements(nodes: NodeList): WebviewTag[] {
   return [...nodes.values()]
@@ -47,11 +55,12 @@ function extractWebviewElements(nodes: NodeList): WebviewTag[] {
 }
 
 export default function onWebviews(): Observable<WebviewTag> {
-  return from(windowReady).switchMap(() => {
+  return whenDomReady.switchMap(() => {
     const preExistingWebviews = extractWebviewElements(
       document.querySelectorAll("webview")
     );
     return onDomMutations()
+      .filter((mutation) => mutation?.addedNodes !== undefined)
       .mergeMap((mutation) => extractWebviewElements(mutation.addedNodes))
       .startWith(...preExistingWebviews);
   });
