@@ -11,6 +11,10 @@ import { IpcMark, ObservableConstructor } from "../common/types";
 
 function createIpcWrapper(ipc: IpcRenderer): ObservableConstructor<IpcMark> {
   return (observer: Observer<IpcMark>) => {
+    if (!observer) {
+      throw new Error("No Observer provided to Observable constructor Fn");
+    }
+
     /** Helper Functions */
     const mark = createMarker({ sink: observer, module: "ipcRenderer" });
     const [wrapEventSender, wrapEventReceiver] = createFunctionWrappers({
