@@ -16,6 +16,10 @@ function createWebviewWrapper(
   webview: WebviewTag
 ): ObservableConstructor<IpcMark> {
   return (observer: Observer<IpcMark>) => {
+    if (!observer) {
+      throw new Error("No Observer provided to Observable constructor Fn");
+    }
+
     /** Helper Functions */
     const mark = createMarker({ sink: observer, module: "webviewTag" });
     const [wrapEventSender] = createFunctionWrappers({
@@ -43,10 +47,23 @@ function createWebviewWrapper(
   };
 }
 
+function isWebviewTag(webview: WebviewTag): webview is WebviewTag {
+  return (
+    webview &&
+    webview instanceof HTMLElement &&
+    typeof webview.send === "function"
+  );
+}
+
 export default function createWebviewMonitor(webview: WebviewTag): IpcMonitor {
-  const isRendererProcess = process?.type === "renderer";
+  const isRendererProcess =
+    process?.type === "renderer" && isWebviewTag(webview);
   if (!isRendererProcess) {
-    return throwError(new Error("Cannot access webContents from this process"));
+    return throwError(
+      new Error(
+        "Provided argument is not compatible with this Renderer process"
+      )
+    );
   }
 
   // monitor the WebContents object (for outgoing messages)
