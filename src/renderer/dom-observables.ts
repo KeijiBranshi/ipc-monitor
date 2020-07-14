@@ -1,15 +1,22 @@
 import { WebviewTag } from "electron";
 import { Observable } from "rxjs/Observable";
 import { from } from "rxjs/observable/from";
+import { _throw as throwError } from "rxjs/observable/throw";
 import { Observer } from "rxjs/Observer";
 
 import "rxjs/add/operator/startWith";
 import "rxjs/add/operator/mergeMap";
 
 export function onDomMutations(
-  target: Node = document.documentElement,
+  target: Node = document?.documentElement,
   config: MutationObserverInit = { subtree: true, childList: true }
 ): Observable<MutationRecord> {
+  if (!target) {
+    return throwError(
+      new Error("DOM Mutations Observable: Node DOM Target Provided")
+    );
+  }
+
   return Observable.create((observer: Observer<MutationRecord>) => {
     const mutation = new MutationObserver((mutationRecords) =>
       mutationRecords.map((m) => observer.next(m))
