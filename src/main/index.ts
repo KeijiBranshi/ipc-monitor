@@ -1,5 +1,6 @@
 import { merge } from "rxjs/observable/merge";
 import "rxjs/add/operator/share";
+import "rxjs/add/operator/mergeMap";
 
 import { IpcMonitor } from "../common/types";
 import createIpcMainMonitor from "./monitor-ipc-main";
