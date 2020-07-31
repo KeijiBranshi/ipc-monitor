@@ -7,7 +7,58 @@ import {
   createFunctionWrappers,
   createMarker,
 } from "../common/function-wrappers";
-import { IpcMark, ObservableConstructor } from "../common/types";
+import { IpcMark, ObservableConstructor, SendFn } from "../common/types";
+import { TeardownLogic } from "rxjs/Subscription";
+
+type ExtractProps<T, TProps extends T[keyof T]> = Pick<T, ExtractPropsKey<T, TProps>>;
+
+type ExtractPropsKey<T, TProps extends T[keyof T]> = {
+  [P in keyof T]: T[P] extends TProps ? P : never;
+}[keyof T];
+
+type Hook = (ipc: IpcRenderer) => ObservableConstructor<IpcMark>;
+type Hook2 = (wrapper: <T>(fn: T, n: string) => T) => TeardownLogic;
+
+const emits = (ipc: IpcRenderer) => (observer: Observer<IpcMark>) => {
+  /** Helper Functions */
+  const mark = createMarker({ sink: observer, module: "ipcRenderer" });
+  const [, wrapEmit] = createFunctionWrappers(mark);
+  const originalEmit = ipc.emit.bind(ipc);
+  ipc.emit = wrapEmit(originalEmit, "emit");
+  return () => ipc.emit = originalEmit;
+}
+
+const sends = (ipc: IpcRenderer): Observable<IpcMark> => {
+  return Observable.create((observer: Observer<IpcMark>) => {
+    /** Helper Functions */
+    const mark = createMarker({ sink: observer, module: "ipcRenderer" });
+    const [, wrapEmit] = createFunctionWrappers(mark);
+    const originalEmit = ipc.emit.bind(ipc);
+    ipc.emit = wrapEmit(originalEmit, "emit");
+    return () => ipc.emit = originalEmit;
+  });
+}
+
+type FuncsOf<T> = typeof T[keyof T];
+
+const isSendFn = (fn: Function, name: string): fn is SendFn => {
+  return name.includes("send");
+}
+
+const methods = (ipc: IpcRenderer, method: keyof IpcRenderer): Observable<IpcMark> => {
+  return Observable.create((observer: Observer<IpcMark>) => {
+    /** Helper Functions */
+    if (!isSendFn(ipc[method], method)) {
+      observer.error('Not a Send Function');
+      return;
+    }
+    const mark = createMarker({ sink: observer, module: "ipcRenderer" });
+    const [wrap] = createFunctionWrappers(mark);
+    const original = ipc[method].bind(ipc);
+    ipc[method] = wrap(original, method);
+    return () => ipc[method] = original;
+  });
+}
 
 function createIpcWrapper(ipc: IpcRenderer): ObservableConstructor<IpcMark> {
   return (observer: Observer<IpcMark>) => {

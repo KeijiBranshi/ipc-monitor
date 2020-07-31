@@ -48,7 +48,6 @@ export function createMarker({ sink, module }: MarkerOptions): MarkFn {
     // of the caller
     setTimeout(() => {
       try {
-        /* eslint:disable-next-line no-unused-expression */
         sink.next({ type, channel, time, correlationId, method, module });
       } catch (e) {
         sink.error(e);
@@ -58,12 +57,7 @@ export function createMarker({ sink, module }: MarkerOptions): MarkFn {
   };
 }
 
-type WrapperOptions = {
-  mark: ReturnType<typeof createMarker>;
-};
-export function createFunctionWrappers({
-  mark,
-}: WrapperOptions): [FunctionMapper<SendFn>, FunctionMapper<EmitFn>] {
+export function createFunctionWrappers(mark: ReturnType<typeof createMarker>): [FunctionMapper<SendFn>, FunctionMapper<EmitFn>] {
   const wrapOutgoingMessages = (
     originalSend: SendFn,
     method?: IpcMethod,
