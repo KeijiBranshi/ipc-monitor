@@ -30,10 +30,13 @@ export function onDomMutations(
   });
 }
 
-const whenDomReady: Observable<unknown> = from(
+const whenDomReady: Observable<void> = from(
   new Promise((resolve, reject) => {
-    if (!(window || document)) {
+    const isUndefined = (obj: any) =>
+      typeof obj === "undefined" || obj === undefined || obj === null;
+    if (isUndefined(window) || isUndefined(document)) {
       reject(new Error("Global Window/DOM not present"));
+      return;
     }
 
     if (document?.readyState === "complete") {
