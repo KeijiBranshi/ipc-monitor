@@ -32,10 +32,12 @@ export function onDomMutations(
 
 const whenDomReady: Observable<void> = from(
   new Promise((resolve, reject) => {
-    const isUndefined = (obj: any) =>
-      typeof obj === "undefined" || obj === undefined || obj === null;
-    if (isUndefined(window) || isUndefined(document)) {
-      reject(new Error("Global Window/DOM not present"));
+    if (typeof window === "undefined") {
+      reject(new Error("Global Window not present"));
+      return;
+    }
+    if (typeof document === "undefined") {
+      reject(new Error("Global Document not present"));
       return;
     }
 
