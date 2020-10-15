@@ -1,11 +1,14 @@
 import { WebviewTag } from "electron";
 import { Observable } from "rxjs/Observable";
-import { from } from "rxjs/observable/from";
+import { defer } from "rxjs/observable/defer";
+import { fromEvent } from "rxjs/observable/fromEvent";
+import { of } from "rxjs/observable/of";
 import { _throw as throwError } from "rxjs/observable/throw";
 import { Observer } from "rxjs/Observer";
 
 import "rxjs/add/operator/filter";
 import "rxjs/add/operator/startWith";
+import "rxjs/add/operator/take";
 import "rxjs/add/operator/mergeMap";
 import "rxjs/add/operator/switchMap";
 
@@ -30,28 +33,19 @@ export function onDomMutations(
   });
 }
 
-const whenDomReady: Observable<void> = from(
-  new Promise((resolve, reject) => {
-    if (typeof window === "undefined") {
-      reject(new Error("Global Window not present"));
-      return;
-    }
-    if (typeof document === "undefined") {
-      reject(new Error("Global Document not present"));
-      return;
-    }
+const whenDomReady: Observable<void> = defer(() => {
+  if (typeof window === "undefined") {
+    return throwError(new Error("Global Window not present"));
+  }
+  if (typeof document === "undefined") {
+    return throwError(new Error("Global Document not present"));
+  }
+  if (document?.readyState === "complete") {
+    return of<void>();
+  }
 
-    if (document?.readyState === "complete") {
-      resolve();
-    } else {
-      const loadedHandler = () => {
-        resolve();
-        window.removeEventListener("load", loadedHandler);
-      };
-      window.addEventListener("load", loadedHandler);
-    }
-  })
-);
+  return fromEvent<void>(window, "load");
+}).take(1);
 
 function extractWebviewElements(nodes: NodeList): WebviewTag[] {
   return [...nodes.values()]
