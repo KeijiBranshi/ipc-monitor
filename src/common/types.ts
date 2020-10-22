@@ -6,7 +6,10 @@ export type IpcMethod =
   | keyof IpcRenderer
   | keyof IpcMain
   | keyof WebContents
-  | keyof WebviewTag;
+  | keyof WebviewTag
+  | string
+  | number
+  | symbol;
 export type IpcModule =
   | "ipcRenderer"
   | "ipcMain"
@@ -16,8 +19,8 @@ export type IpcMark = {
   type: "outgoing" | "incoming";
   time: number;
   correlationId: string;
+  method: IpcMethod;
   channel?: string;
-  method?: IpcMethod;
   module?: IpcModule;
 };
 
@@ -30,7 +33,6 @@ export type IpcMetric<T> = (source: IpcMonitor) => Observable<T>;
 export type MarkFn = (
   type: "outgoing" | "incoming",
   channel: string,
-  method?: IpcMethod,
   correlationId?: string,
   time?: number
 ) => string;
@@ -43,8 +45,4 @@ export type IpcMainListener = Parameters<IpcMain["on"]>;
 
 export type Cleanup = () => void;
 export type ObservableConstructor<T> = (observer: Observer<T>) => Cleanup;
-export type FunctionMapper<T> = (
-  fn: T,
-  method?: IpcMethod,
-  predicate?: () => boolean
-) => T;
+export type FunctionMapper<T> = (fn: T, predicate?: () => boolean) => T;

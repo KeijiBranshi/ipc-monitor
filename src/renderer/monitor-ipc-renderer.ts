@@ -1,16 +1,19 @@
 import { IpcRenderer, ipcRenderer } from "electron";
 import { Observable } from "rxjs/Observable";
 import { _throw as throwError } from "rxjs/observable/throw";
-import { Observer } from "rxjs/Observer";
+import { Observer, NextObserver } from "rxjs/Observer";
+import { TeardownLogic } from "rxjs/Subscription";
 import createMonitor from "../common/create-monitor";
 import {
   createFunctionWrappers,
   createMarker,
 } from "../common/function-wrappers";
 import { IpcMark, ObservableConstructor, SendFn } from "../common/types";
-import { TeardownLogic } from "rxjs/Subscription";
 
-type ExtractProps<T, TProps extends T[keyof T]> = Pick<T, ExtractPropsKey<T, TProps>>;
+type ExtractProps<T, TProps extends T[keyof T]> = Pick<
+  T,
+  ExtractPropsKey<T, TProps>
+>;
 
 type ExtractPropsKey<T, TProps extends T[keyof T]> = {
   [P in keyof T]: T[P] extends TProps ? P : never;
@@ -25,8 +28,8 @@ const emits = (ipc: IpcRenderer) => (observer: Observer<IpcMark>) => {
   const [, wrapEmit] = createFunctionWrappers(mark);
   const originalEmit = ipc.emit.bind(ipc);
   ipc.emit = wrapEmit(originalEmit, "emit");
-  return () => ipc.emit = originalEmit;
-}
+  return () => (ipc.emit = originalEmit);
+};
 
 const sends = (ipc: IpcRenderer): Observable<IpcMark> => {
   return Observable.create((observer: Observer<IpcMark>) => {
@@ -35,30 +38,45 @@ const sends = (ipc: IpcRenderer): Observable<IpcMark> => {
     const [, wrapEmit] = createFunctionWrappers(mark);
     const originalEmit = ipc.emit.bind(ipc);
     ipc.emit = wrapEmit(originalEmit, "emit");
-    return () => ipc.emit = originalEmit;
+    return () => (ipc.emit = originalEmit);
   });
-}
+};
 
-type FuncsOf<T> = typeof T[keyof T];
+type ValueOf<T> = T[keyof T];
+type FilterFlags<Base, Condition> = {
+  [Key in keyof Base]: Base[Key] extends Condition ? Key : never;
+};
 
-const isSendFn = (fn: Function, name: string): fn is SendFn => {
-  return name.includes("send");
-}
+function isSendFn<T>(target: T, key: keyof T): (T[key] is () => void) {
+  return typeof target[key] === 'function';
+};
 
-const methods = (ipc: IpcRenderer, method: keyof IpcRenderer): Observable<IpcMark> => {
+const methods = <T extends IpcRenderer, K extends keyof FilterFlags<T, Function>>(
+  ipc: T,
+  method: K,
+  module: string,
+  wrapper: (mark: NextObserver<IpcMark>['next']) => T[K]
+): Observable<IpcMark> => {
   return Observable.create((observer: Observer<IpcMark>) => {
-    /** Helper Functions */
-    if (!isSendFn(ipc[method], method)) {
-      observer.error('Not a Send Function');
-      return;
+    if (typeof ipc[method] !== "function") {
+      return () => undefined;
     }
-    const mark = createMarker({ sink: observer, module: "ipcRenderer" });
+    const mark = createMarker({
+      sink: observer,
+      module: "ipcRenderer",
+      method,
+    });
     const [wrap] = createFunctionWrappers(mark);
     const original = ipc[method].bind(ipc);
-    ipc[method] = wrap(original, method);
-    return () => ipc[method] = original;
+    /* eslint-disable no-param-reassign  */
+    ipc[method] = wrap(original);
+
+    return () => {
+      ipc[method] = original;
+    };
+    /* eslint-enable no-param-reassign  */
   });
-}
+};
 
 function createIpcWrapper(ipc: IpcRenderer): ObservableConstructor<IpcMark> {
   return (observer: Observer<IpcMark>) => {
@@ -68,9 +86,7 @@ function createIpcWrapper(ipc: IpcRenderer): ObservableConstructor<IpcMark> {
 
     /** Helper Functions */
     const mark = createMarker({ sink: observer, module: "ipcRenderer" });
-    const [wrapEventSender, wrapEventReceiver] = createFunctionWrappers({
-      mark,
-    });
+    const [wrapEventSender, wrapEventReceiver] = createFunctionWrappers(mark);
 
     /** Track the original function implementations */
     const originalEmit = ipc.emit.bind(ipc);

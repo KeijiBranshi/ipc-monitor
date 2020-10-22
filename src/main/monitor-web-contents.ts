@@ -21,7 +21,7 @@ function createWebContentsWrapper(
       sink: observer,
       module: "webContents",
     });
-    const [wrapEventSender] = createFunctionWrappers({ mark });
+    const [wrapEventSender] = createFunctionWrappers(mark);
 
     /** Track the original function implementations */
     const originalSend: typeof contents.send = contents.send.bind(contents);

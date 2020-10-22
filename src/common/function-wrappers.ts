@@ -28,6 +28,7 @@ export function extractCorrelationId(...args: any[]): string | "unknown" {
 export type MarkerOptions = {
   sink: Observer<IpcMark>;
   module: IpcModule;
+  method: IpcMethod | string;
 };
 
 /**
@@ -36,11 +37,10 @@ export type MarkerOptions = {
  * the `performance` and `uuid` APIs. Additionally, it gives more flexibility
  * on the process to decide the Observer (ie sink) implementation for the marks
  */
-export function createMarker({ sink, module }: MarkerOptions): MarkFn {
+export function createMarker({ sink, module, method }: MarkerOptions): MarkFn {
   return function mark(
     type: "outgoing" | "incoming",
     channel: string,
-    method?: IpcMethod,
     correlationId: string = uuid(),
     time: number = Date.now()
   ): string {
@@ -57,20 +57,15 @@ export function createMarker({ sink, module }: MarkerOptions): MarkFn {
   };
 }
 
-export function createFunctionWrappers(mark: ReturnType<typeof createMarker>): [FunctionMapper<SendFn>, FunctionMapper<EmitFn>] {
-  const wrapOutgoingMessages = (
-    originalSend: SendFn,
-    method?: IpcMethod,
-    safeToSend: () => boolean = () => true
-  ): SendFn => {
+type AnyFunction = (...args: any[]) => any;
+export function createFunctionWrappers(
+  mark: ReturnType<typeof createMarker>
+): [any, any] {
+  const wrapOutgoingMessages = (originalSend: SendFn): SendFn => {
     // return a new version of the ipc.send method
-    return (...originalArgs: Parameters<SendFn>): ReturnType<SendFn> => {
-      if (!safeToSend()) {
-        return;
-      }
-
+    return (...originalArgs: any[]): any => {
       const [channel, ...args] = originalArgs;
-      const correlationId = mark("outgoing", channel, method);
+      const correlationId = mark("outgoing", channel);
       // add the correlation id as the last argument
       // (to hide it from the original handler on the other end)
       /* eslint-disable-next-line consistent-return */
@@ -82,19 +77,11 @@ export function createFunctionWrappers(mark: ReturnType<typeof createMarker>): [
       );
     };
   };
-  const wrapIncomingMessages = (
-    originalEmit: EmitFn,
-    method?: IpcMethod,
-    safeToEmit: () => boolean = () => true
-  ): EmitFn => {
+  const wrapIncomingMessages = (originalEmit: EmitFn): EmitFn => {
     return (...originalArgs: Parameters<EmitFn>) => {
-      if (!safeToEmit()) {
-        return false;
-      }
-
       const [channel, ...args] = originalArgs as [string, ...any[]];
       const correlationId = extractCorrelationId(...args);
-      mark("incoming", channel.toString(), method, correlationId);
+      mark("incoming", channel.toString(), correlationId);
 
       return originalEmit(...originalArgs);
     };
