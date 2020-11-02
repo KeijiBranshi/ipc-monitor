@@ -55,6 +55,12 @@ function createIpcWrapper(ipc: IpcRenderer): ObservableConstructor<IpcMark> {
   };
 }
 
+/**
+ * Returns an Observable that monitors the `ipcRenderer` Electron module.
+ * Returned Observable emits an [`IpcMark`](../common/types) whenever a message is either:
+ * 1. received through `ipcRender` via `ipcRenderer.on('ipc-channel', (event) => { ... })`, or
+ * 2. sent through ipcRenderer via `ipcRenderer.send('ipc-channel', 'arg0', 'arg1')`
+ */
 export default function createIpcRendererMonitor(): Observable<IpcMark> {
   const isRendererProcess = process?.type === "renderer" && ipcRenderer;
   if (!isRendererProcess) {
