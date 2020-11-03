@@ -1,6 +1,6 @@
 {
   "name": "ipc-monitor",
-  "version": "1.0.5",
+  "version": "1.0.6-beta.0",
   "description": "Observable-based IPC Monitoring Tool",
   "main": "index.js",
   "scripts": {
