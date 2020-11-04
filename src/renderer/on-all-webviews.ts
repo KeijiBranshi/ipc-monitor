@@ -63,9 +63,8 @@ function filterToWebviewElements(nodes: NodeList): WebviewTag[] {
  */
 export default function onAllWebviews(): Observable<WebviewTag> {
   return whenDomReady.switchMap(() => {
-    const existingWebviewElements = filterToWebviewElements(
-      document.querySelectorAll("webview")
-    );
+    const selectedNodes = document.querySelectorAll("webview");
+    const existingWebviewElements = filterToWebviewElements(selectedNodes);
 
     const newWebviewElements = onDomMutations()
       .filter((mutation) => mutation?.addedNodes !== undefined)
