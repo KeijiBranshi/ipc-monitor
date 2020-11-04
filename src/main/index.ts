@@ -3,8 +3,8 @@ import "rxjs/add/operator/share";
 import "rxjs/add/operator/mergeMap";
 
 import { IpcMonitor } from "../common/types";
-import createIpcMainMonitor from "./monitor-ipc-main";
-import createWebContentsMonitor from "./monitor-web-contents";
+import createIpcMainMonitor from "./create-ipcmain-monitor";
+import createWebContentsMonitor from "./create-webcontents-monitor";
 import onAllWebContents from "./on-all-webcontents";
 
 const ipcMainMonitor: IpcMonitor = createIpcMainMonitor().share();
@@ -13,7 +13,7 @@ const webContentsMonitor: IpcMonitor = onAllWebContents()
   .share();
 
 /** Aggregate Monitors */
-const mainProcessMonitor: IpcMonitor = merge(
+const mainProcessIpcMonitor: IpcMonitor = merge(
   ipcMainMonitor,
   webContentsMonitor
 );
@@ -25,4 +25,4 @@ export { createIpcMainMonitor, createWebContentsMonitor };
 export { ipcMainMonitor, webContentsMonitor };
 
 /** Default to Main Process Monitor */
-export default mainProcessMonitor;
+export default mainProcessIpcMonitor;

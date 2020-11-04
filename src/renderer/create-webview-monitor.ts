@@ -55,6 +55,11 @@ function isWebviewTag(webview: WebviewTag): webview is WebviewTag {
   );
 }
 
+/**
+ * Returns an Observable that monitors the provided [`WebviewTag`]() object.
+ * Returned Observable emits an [`IpcMark`](../common/types) whenever a message is
+ * through `WebviewTag` via `ipcMain.on('ipc-message', (event) => { ... })`
+ */
 export default function createWebviewMonitor(webview: WebviewTag): IpcMonitor {
   const isRendererProcess =
     process?.type === "renderer" && isWebviewTag(webview);

@@ -28,6 +28,11 @@ function createIpcWrapper(ipc: IpcMain): ObservableConstructor<IpcMark> {
   };
 }
 
+/**
+ * Returns an Observable that monitors the `ipcMain` Electron module.
+ * Returned Observable emits an [`IpcMark`](../common/types) whenever a message is received
+ * through `ipcMain` via `ipcMain.on('ipc-message', (event) => { ... })`
+ */
 export default function createIpcMainMonitor(): Observable<IpcMark> {
   const isMainProcess = process && ipcMain;
   if (!isMainProcess) {

@@ -51,20 +51,24 @@ const whenDomReady: Observable<void> = from(
   })
 );
 
-function extractWebviewElements(nodes: NodeList): WebviewTag[] {
+function filterToWebviewElements(nodes: NodeList): WebviewTag[] {
   return [...nodes.values()]
     .filter((node) => node instanceof HTMLElement && node.tagName === "WEBVIEW")
     .map((node) => node as WebviewTag);
 }
 
-export default function onWebviews(): Observable<WebviewTag> {
+/**
+ * Returns an Observable that emits [`WebviewTag`](https://www.electronjs.org/docs/api/webview-tag?q=WebviewTag#webview-tag)s for every `<webview/>` html element that
+ * gets added to the DOM tree.
+ */
+export default function onAllWebviews(): Observable<WebviewTag> {
   return whenDomReady.switchMap(() => {
-    const preExistingWebviews = extractWebviewElements(
-      document.querySelectorAll("webview")
-    );
-    return onDomMutations()
+    const selectedNodes = document.querySelectorAll("webview");
+    const existingWebviewElements = filterToWebviewElements(selectedNodes);
+
+    const newWebviewElements = onDomMutations()
       .filter((mutation) => mutation?.addedNodes !== undefined)
-      .mergeMap((mutation) => extractWebviewElements(mutation.addedNodes))
-      .startWith(...preExistingWebviews);
+      .mergeMap((mutation) => filterToWebviewElements(mutation.addedNodes));
+    return newWebviewElements.startWith(...existingWebviewElements);
   });
 }

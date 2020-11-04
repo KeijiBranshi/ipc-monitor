@@ -41,6 +41,11 @@ function createWebContentsWrapper(
   };
 }
 
+/**
+ * Returns an Observable that monitors the provided [`WebContents`](https://www.electronjs.org/docs/api/web-contents#class-webcontents) object.
+ * Returned Observable emits an [`IpcMark`](../common/types) whenever a message is
+ * through `ipcMain` via `ipcMain.on('ipc-message', (event) => { ... })`
+ */
 export default function createWebContentsMonitor(
   contents: WebContents
 ): Observable<IpcMark> {

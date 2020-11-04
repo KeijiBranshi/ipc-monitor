@@ -1,21 +1,20 @@
 # RxJS Based Monitor for IPC Traffic
 
-An Observable that wraps/decorates Electron's `ipcRenderer`/`ipcMain` module and emits meta data "marks" whenever a message is sent or received.
+An Observable that wraps/decorates Electron's `ipc` facilitating modules and emits meta data "marks" whenever a message is sent or received.
 
 In some ways, this is just a glorified wrapper around `Observable.create()` for IPC.
 
-## How To
+## How To Use
 
 ```javascript
 // import will detect which process you're on and wrap the appropriate ipc module
 import ipcMonitor from "ipc-monitor";
 
 // on subscribe, the ipc will get wrapped and this will emit meta data (this is a global side effect)
-const subscription = ipcMonitor.subscribe(mark => {
+const subscription = ipcMonitor.subscribe((mark) => {
   if (mark.type === "outgoing") {
     console.log(`Message Sent @ ${mark.time}`);
-  }
-  else if (mark.type === "incoming") {
+  } else if (mark.type === "incoming") {
     console.log(`Message Received @ ${mark.time}`);
   }
 });
@@ -25,6 +24,32 @@ subscription.unsubscribe();
 ```
 
 > Note: this module performs a side-effect by decorating the `send` and `emit` methods on ipc. Original methods are restored on `unsubscribe()`.
+
+## `IpcMark` Guide
+
+`IpcMark` is the type definition for emissions from an `ipcMonitor`. It is necessarily serializable JSON payload. The below tables detail which `IpcMark.Module` and `IpcMark.Method` are used for a given ipc message event. Messages that incur an ipc message event are either incoming or outgoing from a given process (denoted by the `IpcMark.Direction` property). _Incoming_ and _Outoing_ messages are correlated via the `IpcMark.CorrelationId` property.
+
+### Outgoing Message Marks
+
+| Sender Process                                                                               | Receiver Process  | `IpcMark.Module`                                                  | `IpcMark.Method`   |
+| -------------------------------------------------------------------------------------------- | ----------------- | ----------------------------------------------------------------- | ------------------ |
+| [Main](https://www.electronjs.org/docs/tutorial/quick-start#main-and-renderer-processes)     | Renderer          | `webContents`                                                     | `send`             |
+| [Renderer](https://www.electronjs.org/docs/tutorial/quick-start#main-and-renderer-processes) | Main              | [`ipcRenderer`](https://www.electronjs.org/docs/api/ipc-renderer) | `send`, `sendSync` |
+| [Renderer](https://www.electronjs.org/docs/tutorial/quick-start#main-and-renderer-processes) | Renderer          | [`ipcRenderer`](https://www.electronjs.org/docs/api/ipc-renderer) | `sendTo`           |
+| [Host Renderer](https://www.electronjs.org/docs/tutorial/web-embeds#webviews)                | Embedded Renderer | `webviewTag`                                                      | `send`             |
+| [Embedded Renderer](https://www.electronjs.org/docs/tutorial/web-embeds#webviews)            | Host Renderer     | [`ipcRenderer`](https://www.electronjs.org/docs/api/ipc-renderer) | `sendToHost`       |
+
+> Note: _Embedded_ specifically refer to `<webview/>` tags here, therefore, _Embedded_ and _Host_ _Renderer_`s are a subset of more general _Renderer_ processes.
+
+### Incoming Message Marks
+
+| Sender Process    | Receiver Process  | `IpcMark.Module` | `IpcMark.Method`   |
+| ----------------- | ----------------- | ---------------- | ------------------ |
+| Main              | Renderer          | `ipcRenderer`    | `emit`             |
+| Renderer          | Main              | `ipcMain`        | `emit`             |
+| Renderer          | Renderer          | `ipcRenderer`    | `emit`             |
+| Host Renderer     | Embedded Renderer | `ipcRenderer`    | `emit`             |
+| Embedded Renderer | Host Renderer     | `ipcRenderer`    | `addEventListener` |
 
 ## IpcMetrics
 
