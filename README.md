@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/KeijiBranshi/ipc-monitor.svg?branch=master)](https://travis-ci.org/KeijiBranshi/ipc-monitor)
+
 # RxJS Based Monitor for IPC Traffic
 
 An Observable that wraps/decorates Electron's `ipc` facilitating modules and emits meta data "marks" whenever a message is sent or received.
